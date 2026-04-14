@@ -1,16 +1,12 @@
 import pandas as pd
-import numpy as np
-import re
 import matplotlib.pyplot as plt
-# import seaborn as sns
+import re
 from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import (accuracy_score, precision_score, recall_score,
-                             f1_score, roc_auc_score, precision_recall_curve,
+from sklearn.metrics import (accuracy_score, roc_auc_score, precision_recall_curve,
                              auc, confusion_matrix, classification_report)
-from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 
 df = pd.read_csv(r"C:\Users\kirkl\Downloads\FYP Response.csv")
 
@@ -122,8 +118,10 @@ df = df.dropna(subset=['progression_clean'])
 # Making target variable
 # # median as threshold
 threshold = df['progression_clean'].median()
+# And Statement
 df['retention'] = ((df['progression_clean'] >= threshold) & 
                    (df['play_frequency'] >= 3)).astype(int)
+# Indiviudually
 # df['retention'] = df['progression_clean'].apply(lambda x:1 if x >= threshold else 0)
 # df['retention'] = (df['play_frequency'] >= 3).astype(int)
 
