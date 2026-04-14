@@ -8,7 +8,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import (accuracy_score, roc_auc_score, precision_recall_curve,
                              auc, confusion_matrix, classification_report)
 
-df = pd.read_csv(r"C:\Users\kirkl\Downloads\FYP Response.csv")
+# Dataset (old)
+df = pd.read_csv(r"C:\Users\kirkl\OneDrive - University of Greenwich\CWs\COMP1682-FYP\Code for FYP\FYP Response.csv")
 
 # Changing into usable features
 def group_likert(x):
