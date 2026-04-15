@@ -2,7 +2,7 @@ import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split, cross_val_score, RepeatedStratifiedKFold
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay, 
                              roc_curve, roc_auc_score, precision_recall_curve, auc)
@@ -143,29 +143,24 @@ print("\nRetention distribution:")
 print(df['retention'].value_counts())
 
 '''Training'''
-# Running split mutliple times for 80-20, 70-30, 60-40
-for test_size in [0.2, 0.3, 0.4]:
-    scores = []
-    
-    for i in range(5):  # repeat 5 times
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=test_size, stratify=y, random_state=42 + i
-        )
-        
-        model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
-        model.fit(X_train, y_train)
-        
-        y_pred = model.predict(X_test)
-        scores.append(accuracy_score(y_test, y_pred))
-    
-    print(f"\nTest size: {test_size}")
-    print("Average Accuracy:", np.mean(scores))
+# Standard Split data using the 70-30 rule
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, 
+                                                    random_state=42, stratify=y)
 
-# Cross Validation
-cv = RepeatedStratifiedKFold(n_splits=3, n_repeats=5, random_state=42)
+# Train model
+model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+
+# Accuracy
+print("\nAccuracy:", accuracy_score(y_test, y_pred))
+
+# basic cross validation using StratifiedKFold
+cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 scores = cross_val_score(model, X, y, cv=cv)
-print('\nMean accuracy:', scores.mean())
-print('Standard Deviation:', scores.std())
+print('Cross Validation accuracy:', scores.mean())
 
 # Classification report
 print(f'\n{classification_report(y_test, y_pred)}')
@@ -216,7 +211,7 @@ print(f'\n{df[['difficulty', 'frustration', 'enjoyment', 'difficulty_curve', 're
 print(f'\n{df[['difficulty_curve', 'retention']].corr()}')
 
 # Avg retention per difficulty level
-avg_retention = df.groupby('difficulty')['retention'].mean()
+avg_retention = df.groupby('difficulty_curve')['retention'].mean()
 
 # Confusion Matrix
 cm = confusion_matrix(y_test, y_pred)
@@ -226,8 +221,8 @@ plt.show()
 
 # Average retention graph
 avg_retention.plot(kind='bar')
-plt.xlabel("Difficulty Level")
+plt.xlabel("Difficulty Curve Level")
 plt.ylabel("Retention Rate")
-plt.title("Difficulty vs Retention")
+plt.title("Difficulty Curve vs Player Retention")
 plt.show()
 
