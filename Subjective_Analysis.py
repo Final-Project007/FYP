@@ -3,7 +3,7 @@ import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split, cross_val_score, RepeatedStratifiedKFold
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -161,10 +161,18 @@ models = {
 # Training and Evaluating
 model_results = {}
 
+# Cross Validation Setup
+cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+
 for name, model in models.items():
+    # Cross Validation
+    cv_scores = cross_val_score(model, X, y, cv=cv, scoring='accuracy')
+    cv_mean = cv_scores.mean()
+    cv_std = cv_scores.std()
+
+    # Training split
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-
     acc = accuracy_score(y_test, y_pred)
 
     if hasattr(model, "predict_proba"):
@@ -179,17 +187,27 @@ for name, model in models.items():
         "model": model,
         "accuracy": acc,
         "roc_auc": roc,
-        "pr_auc": pr_auc
+        "pr_auc": pr_auc,
+        "cv_mean": cv_mean,
+        "cv_std": cv_std
     }
 
-    print(f"\n{name}")
-    print(f"Accuracy: {acc:.3f}, ROC AUC: {roc:.3f}, PR AUC: {pr_auc:.3f}")
+    print(f"\n---{name}---")
+    print(f"Accuracy: {acc:.3f}")
+    print(f"Cross Validation Mean Accuracy: {cv_mean:.3f}")
+    print(f"Cross Validation Standard Deviation: {cv_std:.3f}")
+    print(f"ROC AUC: {roc:.3f} and PR AUC: {pr_auc:.3f}")
 
 # Best Model Selection
+# Using Cross Validation mean accuracy
+best_model_name = max(model_results, key=lambda x: model_results[x]['cv_mean'])
+best_model = model_results[best_model_name]["model"]
+print(f"\nBest Model (based on CV): {best_model_name}")
+
+# Using roc_auc
 best_model_name = max(model_results, key=lambda x: model_results[x]['roc_auc'])
 best_model = model_results[best_model_name]["model"]
-
-print(f"\nBest Model: {best_model_name}")
+print(f"\nBest Model (for ROC AUC): {best_model_name}")
 
 # Classification report for the best model
 y_pred = best_model.predict(X_test)
@@ -223,9 +241,6 @@ plt.show()
 if hasattr(best_model, "feature_importances_"):
     importance = pd.Series(best_model.feature_importances_, index=X.columns)
     print("\nFeature Importance:\n", importance.sort_values(ascending=False))
-elif hasattr(best_model, "coef_"):
-    importance = pd.Series(best_model.coef_[0], index=X.columns)
-    print("\nFeature Coefficients:\n", importance.sort_values(ascending=False))
 
 # Overall correlation
 print(f'\n{data[['difficulty', 'frustration', 'enjoyment', 'difficulty_curve', 'retention']].corr()}')

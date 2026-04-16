@@ -155,12 +155,14 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 # Accuracy
+print('---Random Forest Classifier---')
 print("\nAccuracy:", accuracy_score(y_test, y_pred))
 
 # basic cross validation using StratifiedKFold
 cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 scores = cross_val_score(model, X, y, cv=cv)
 print('Cross Validation accuracy:', scores.mean())
+print('Cross Validation std:', scores.std())
 
 # Classification report
 print(f'\n{classification_report(y_test, y_pred)}')
@@ -204,14 +206,12 @@ plt.show()
 importance = pd.Series(model.feature_importances_, index=X.columns)
 print(f'\nFeature Importance: \n{importance.sort_values(ascending=False)}')
 
-# Overall correlation
-print(f'\n{df[['difficulty', 'frustration', 'enjoyment', 'difficulty_curve', 'retention']].corr()}')
+# Overall correlation of relevant features
+print(f'\n{df[['difficulty','played_before', 'frustration', 'enjoyment', 'difficulty_curve', 'retention']].corr()}')
+
 
 # Main Correlation
 print(f'\n{df[['difficulty_curve', 'retention']].corr()}')
-
-# Avg retention per difficulty level
-avg_retention = df.groupby('difficulty_curve')['retention'].mean()
 
 # Confusion Matrix
 cm = confusion_matrix(y_test, y_pred)
@@ -219,10 +219,12 @@ display = ConfusionMatrixDisplay(confusion_matrix=cm)
 display.plot()
 plt.show()
 
+# Avg retention per difficulty level
+avg_retention = df.groupby('difficulty_curve')['retention'].mean()
+
 # Average retention graph
 avg_retention.plot(kind='bar')
 plt.xlabel("Difficulty Curve Level")
 plt.ylabel("Retention Rate")
 plt.title("Difficulty Curve vs Player Retention")
 plt.show()
-

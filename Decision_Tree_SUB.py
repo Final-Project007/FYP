@@ -156,6 +156,7 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 # Accuracy
+print('---Decision Tree Classifier---')
 print("\nAccuracy:", accuracy_score(y_test, y_pred))
 
 # basic cross validation using StratifiedKFold
@@ -211,14 +212,14 @@ print(f'\n{df[['difficulty', 'frustration', 'enjoyment', 'difficulty_curve', 're
 # Main Correlation
 print(f'\n{df[['difficulty_curve', 'retention']].corr()}')
 
-# Avg retention per difficulty level
-avg_retention = df.groupby('difficulty_curve')['retention'].mean()
-
 # Confusion Matrix
 cm = confusion_matrix(y_test, y_pred)
 display = ConfusionMatrixDisplay(confusion_matrix=cm)
 display.plot()
 plt.show()
+
+# Avg retention per difficulty level
+avg_retention = df.groupby('difficulty_curve')['retention'].mean()
 
 # Average retention graph
 avg_retention.plot(kind='bar')
