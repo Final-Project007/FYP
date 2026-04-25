@@ -11,9 +11,6 @@
 1. Install requirements:
    pip install -r requirements.txt
 
-2. Install Objective Dataset
-   https://www.kaggle.com/datasets/thedevastator/steam-games-user-statistics-and-features?
-
 2. Install Objective Dataset:
    https://www.kaggle.com/datasets/thedevastator/steam-games-user-statistics-and-features?
 
