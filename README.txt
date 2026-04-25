@@ -15,7 +15,7 @@
    https://www.kaggle.com/datasets/thedevastator/steam-games-user-statistics-and-features?
 
 3. Add Objective Dataset into file:
-   games-features.csv --> FYP/Main
+   games-features.csv --> FYP-main
 
 4. Run subjective model:
    python subjective_analysis.py
